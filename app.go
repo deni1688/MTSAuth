@@ -9,8 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// InitServer - creates a new server with mux router
-func InitServer() {
+func initServer() {
 	fmt.Println("Server listening on port 9000. Started at: " + time.Now().Format(time.RFC3339))
 
 	err := http.ListenAndServe(":9000", initRouter())
@@ -23,9 +22,9 @@ func InitServer() {
 func initRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", HandleServiceCheck).Methods("GET")
-	router.HandleFunc("/auth", HandleAuth).Methods("POST")
-	router.HandleFunc("/register", HandleRegister).Methods("POST")
+	router.HandleFunc("/", handleServiceCheck).Methods("GET")
+	router.HandleFunc("/auth", handleAuth).Methods("POST")
+	router.HandleFunc("/register", handleRegister).Methods("POST")
 
 	return router
 }

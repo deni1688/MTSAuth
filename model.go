@@ -15,29 +15,24 @@ type User struct {
 	Roles     []string `json:"roles,omitempty"`
 }
 
-// RegisterRoot - validates and creates a root user
-func (user *User) RegisterRoot() (*User, error) {
+func (user *User) registerRoot() (*User, error) {
 	return nil, errors.New("Not implemented")
 }
 
-// CreateManager - creates a new manager user for a company
-func (user *User) CreateManager() (*User, error) {
+func (user *User) createManager() (*User, error) {
 	return nil, errors.New("Not implemented")
 }
 
-// UpdateUser - validates and updates user
-func (user *User) UpdateUser() (*User, error) {
+func (user *User) updateUser() (*User, error) {
 	return nil, errors.New("Not implemented")
 }
 
-// AuthenticateUser - finds user by id
-func (user *User) AuthenticateUser() (*User, error) {
+func (user *User) authenticateUser() (*User, error) {
 	user.Roles = append(user.Roles, "ProductManager")
 
 	return user, nil
 }
 
-// RemoveManagerByID - removes a manager by id
-func (user *User) RemoveManagerByID() (*User, error) {
+func (user *User) removeManagerByID() (*User, error) {
 	return nil, errors.New("Not implemented")
 }

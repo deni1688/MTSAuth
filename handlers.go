@@ -9,7 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// Credentials - Create a struct to read the username and password from the request body
+// Credentials - username and password from the request body
 type Credentials struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -24,20 +24,13 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// TokenResponse -
-type TokenResponse struct {
-	Token string `json:"token"`
-}
-
 var jwtKey = []byte("my_secret_key")
 
-// HandleServiceCheck - sends a simple message to verify that the service is up
-func HandleServiceCheck(w http.ResponseWriter, r *http.Request) {
+func handleServiceCheck(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"status": "Service is running"})
 }
 
-// HandleAuth - handles auth requests
-func HandleAuth(w http.ResponseWriter, r *http.Request) {
+func handleAuth(w http.ResponseWriter, r *http.Request) {
 	var auth User
 
 	if err := json.NewDecoder(r.Body).Decode(&auth); err != nil || auth.Password == "" || auth.Email == "" {
@@ -45,7 +38,7 @@ func HandleAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := auth.AuthenticateUser()
+	user, err := auth.authenticateUser()
 
 	if err != nil {
 		respondWithError(w, http.StatusForbidden, "Authentication failed")
@@ -59,16 +52,14 @@ func HandleAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusAccepted, &TokenResponse{Token: token})
+	respondWithJSON(w, http.StatusAccepted, map[string]string{"token": token})
 }
 
-// HandleRegister - handles auth registration of a new user
-func HandleRegister(w http.ResponseWriter, r *http.Request) {
+func handleRegister(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "register ")
 }
 
-// HandleCreateManager - handles auth registration of a new user
-func HandleCreateManager(w http.ResponseWriter, r *http.Request) {
+func handleCreateManager(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "register ")
 }
 
