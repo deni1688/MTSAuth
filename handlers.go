@@ -4,18 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-// Credentials - username and password from the request body
-type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-// Claims - payload of the token
+// Claims - payload returned to the client
 type Claims struct {
 	FirstName string   `json:"frstName"`
 	LastName  string   `json:"lastName"`
@@ -24,13 +19,13 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-var jwtKey = []byte("my_secret_key")
+var jwtKey = []byte(os.Getenv("MOTUS_JWT_SECRET"))
 
 func handleServiceCheck(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"status": "Service is running"})
 }
 
-func handleAuth(w http.ResponseWriter, r *http.Request) {
+func handleLogin(w http.ResponseWriter, r *http.Request) {
 	var auth User
 
 	if err := json.NewDecoder(r.Body).Decode(&auth); err != nil || auth.Password == "" || auth.Email == "" {
@@ -55,27 +50,23 @@ func handleAuth(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"token": token})
 }
 
-func handleRegister(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "register ")
-}
-
-func handleCreateManager(w http.ResponseWriter, r *http.Request) {
+func handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "register ")
 }
 
 func (user *User) createTokenString() (string, error) {
-	expirationTime := time.Now().Add(5 * time.Minute)
-	standardClaims := jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claimsExpiration := jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}
 
 	claims := &Claims{
 		FirstName:      user.FirstName,
 		LastName:       user.LastName,
 		Email:          user.Email,
 		Roles:          user.Roles,
-		StandardClaims: standardClaims,
+		StandardClaims: claimsExpiration,
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, *claims)
 	tokenString, err := token.SignedString(jwtKey)
 
 	return tokenString, err
