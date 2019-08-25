@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -62,7 +63,7 @@ func (user *User) createTokenString() (string, error) {
 		FirstName:      user.FirstName,
 		LastName:       user.LastName,
 		Email:          user.Email,
-		Roles:          user.Roles,
+		Roles:          strings.Split(user.Roles, ","),
 		StandardClaims: claimsExpiration,
 	}
 

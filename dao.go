@@ -3,6 +3,7 @@ package main
 import "errors"
 
 func (user *User) createUser() (*User, error) {
+
 	return nil, errors.New("Not implemented")
 }
 
@@ -23,7 +24,7 @@ func (user *User) deleteUser() (*User, error) {
 }
 
 func (user *User) authenticateUser() (*User, error) {
-	user.Roles = append(user.Roles, "ProductManager")
+	user.Roles = "ProductManager,OrderManager,UserManager"
 
 	return user, nil
 }

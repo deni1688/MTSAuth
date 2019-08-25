@@ -13,11 +13,11 @@ type MetaData struct {
 // User - schema for users
 type User struct {
 	MetaData
-	CompanyID string   `json:"companyId,omitempty"`
-	FirstName string   `json:"firstName,omitempty"`
-	LastName  string   `json:"lastName,omitempty"`
-	Email     string   `gorm:"unique;not null" json:"email,omitempty"`
-	Password  string   `json:"password,omitempty"`
-	IsRoot    bool     `json:"isRoot,omitempty"`
-	Roles     []string `json:"roles,omitempty"`
+	CompanyID string `json:"companyId,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
+	LastName  string `json:"lastName,omitempty"`
+	Email     string `gorm:"unique;not null" json:"email,omitempty"`
+	Password  string `json:"password,omitempty"`
+	IsRoot    bool   `json:"isRoot,omitempty"`
+	Roles     string `json:"roles,omitempty"`
 }
