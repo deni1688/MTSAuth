@@ -10,4 +10,6 @@ COPY . .
 
 EXPOSE 9000
 
-CMD ["go build; ./motusauth"] 
+RUN go build -o main .
+   
+CMD ["./main"]
