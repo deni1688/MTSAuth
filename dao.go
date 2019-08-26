@@ -2,29 +2,39 @@ package main
 
 import "errors"
 
-func (user *User) createUser() (*User, error) {
-
-	return nil, errors.New("Not implemented")
+func (u *User) createUser() (*User, error) {
+	return nil, errors.New("na")
 }
 
-func (user *User) getUser() (*User, error) {
-	return nil, errors.New("Not implemented")
+func (u *User) getUser(query interface{}) (*User, error) {
+
+	user := &User{}
+
+	db := connectDB()
+
+	defer db.Close()
+
+	if query == nil {
+		db.First(&user, u.ID)
+	} else {
+		db.Where(query).First(&user)
+	}
+
+	if user != (&User{}) {
+		return user, nil
+	}
+
+	return nil, errors.New("userNotFound")
 }
 
-func (user *User) getUsers() (*User, error) {
-	return nil, errors.New("Not implemented")
+func (u *User) getUsers() (*User, error) {
+	return nil, errors.New("na")
 }
 
-func (user *User) updateUser() (*User, error) {
-	return nil, errors.New("Not implemented")
+func (u *User) updateUser() (*User, error) {
+	return nil, errors.New("na")
 }
 
-func (user *User) deleteUser() (*User, error) {
-	return nil, errors.New("Not implemented")
-}
-
-func (user *User) authenticateUser() (*User, error) {
-	user.Roles = "ProductManager,OrderManager,UserManager"
-
-	return user, nil
+func (u *User) deleteUser() (*User, error) {
+	return nil, errors.New("na")
 }

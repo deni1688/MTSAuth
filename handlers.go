@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Claims - payload returned to the client
@@ -27,17 +30,19 @@ func handleServiceCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	var auth User
+	var reqUser User
 
-	if err := json.NewDecoder(r.Body).Decode(&auth); err != nil || auth.Password == "" || auth.Email == "" {
+	if err := json.NewDecoder(r.Body).Decode(&reqUser); err != nil || reqUser.Password == "" || reqUser.Email == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid credentials format")
+
 		return
 	}
 
-	user, err := auth.authenticateUser()
+	user, err := reqUser.authenticate()
 
 	if err != nil {
-		respondWithError(w, http.StatusForbidden, "Authentication failed")
+		respondWithError(w, http.StatusForbidden, err.Error())
+
 		return
 	}
 
@@ -45,6 +50,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+
 		return
 	}
 
@@ -52,18 +58,32 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCreateUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "register ")
+	fmt.Fprint(w, "register")
 }
 
-func (user *User) createTokenString() (string, error) {
+func (u *User) authenticate() (*User, error) {
+	user, err := u.getUser(&User{Email: u.Email})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if isValid := comparePasswords(user.Password, []byte(u.Password)); isValid {
+		return user, nil
+	}
+
+	return nil, errors.New("passwordInvalid")
+}
+
+func (u *User) createTokenString() (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claimsExpiration := jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}
 
 	claims := &Claims{
-		FirstName:      user.FirstName,
-		LastName:       user.LastName,
-		Email:          user.Email,
-		Roles:          strings.Split(user.Roles, ","),
+		FirstName:      u.FirstName,
+		LastName:       u.LastName,
+		Email:          u.Email,
+		Roles:          strings.Split(u.Roles, ","),
 		StandardClaims: claimsExpiration,
 	}
 
@@ -71,6 +91,19 @@ func (user *User) createTokenString() (string, error) {
 	tokenString, err := token.SignedString(jwtKey)
 
 	return tokenString, err
+}
+
+func comparePasswords(hashedPwd string, plainPwd []byte) bool {
+	byteHash := []byte(hashedPwd)
+	err := bcrypt.CompareHashAndPassword(byteHash, plainPwd)
+
+	if err != nil {
+		log.Println(err)
+
+		return false
+	}
+
+	return true
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

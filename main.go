@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -24,8 +26,10 @@ func initDB() {
 
 func initServer() {
 	fmt.Println("Server listening on port 9000. Started at: " + time.Now().Format(time.RFC3339))
+	router := initRouter()
+	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 
-	if err := http.ListenAndServe(":9000", initRouter()); err != nil {
+	if err := http.ListenAndServe(":9000", loggedRouter); err != nil {
 		log.Fatal("Failed to start server")
 	}
 }
