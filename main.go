@@ -10,7 +10,16 @@ import (
 )
 
 func main() {
+	initDB()
 	initServer()
+}
+
+func initDB() {
+	db := connectDB()
+
+	defer db.Close()
+
+	db.AutoMigrate(&User{})
 }
 
 func initServer() {
