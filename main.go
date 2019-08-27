@@ -39,7 +39,7 @@ func initRouter() *mux.Router {
 
 	router.HandleFunc("/", handleServiceCheck).Methods("GET")
 	router.HandleFunc("/auth", handleLogin).Methods("POST")
-	router.HandleFunc("/register", handleCreateUser).Methods("POST")
+	router.HandleFunc("/register", handleSignUp).Methods("POST")
 
 	return router
 }

@@ -1,9 +1,17 @@
 package main
 
-import "errors"
+import (
+	"errors"
+)
 
-func (u *User) createUser() (*User, error) {
-	return nil, errors.New("na")
+func (u *User) createUser() *User {
+	db := connectDB()
+
+	defer db.Close()
+
+	db.Create(&u)
+
+	return u
 }
 
 func (u *User) getUser(query interface{}) (*User, error) {
