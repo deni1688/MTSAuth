@@ -17,7 +17,7 @@ func Init() {
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 
 	if err := http.ListenAndServe(":9000", loggedRouter); err != nil {
-		log.Fatal(err.Error)
+		log.Fatal(err.Error())
 	}
 }
 
