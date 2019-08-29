@@ -1,9 +1,9 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
 WORKDIR /app
 
-COPY ./authapi .
+COPY ./motusauth .
 
 EXPOSE 9000
    
-CMD ["./authapi"]
+CMD ["./motusauth"]
