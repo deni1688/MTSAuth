@@ -7,7 +7,7 @@ import (
 	"github.com/deni1688/motusauth/db"
 )
 
-type MetaData struct {
+type metadata struct {
 	ID        uint       `gorm:"primary_key" json:"id,omitempty"`
 	CreatedAt time.Time  `json:"createdAt,omitempty"`
 	UpdatedAt time.Time  `json:"updatedAt,omitempty"`
@@ -15,7 +15,7 @@ type MetaData struct {
 }
 
 type User struct {
-	MetaData
+	metadata
 	CompanyID string `json:"companyId,omitempty"`
 	FirstName string `json:"firstName,omitempty"`
 	LastName  string `json:"lastName,omitempty"`

@@ -20,17 +20,10 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.AuthenticateUser(&u)
+	token, err := app.AuthenticateUser(&u)
 
 	if err != nil {
 		respondWithError(w, http.StatusForbidden, err.Error())
-		return
-	}
-
-	token, err := app.CreateToken(user)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

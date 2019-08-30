@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -10,10 +9,9 @@ import (
 	"github.com/deni1688/motusauth/models"
 
 	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type _claims struct {
+type claims struct {
 	FirstName string   `json:"frstName"`
 	LastName  string   `json:"lastName"`
 	Email     string   `json:"email"`
@@ -28,8 +26,8 @@ func CreateUser(u *models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	companyID := HashAndSalt(u.Email)
-	password := HashAndSalt(u.Password)
+	companyID := hashAndSalt(u.Email)
+	password := hashAndSalt(u.Password)
 
 	u.CompanyID = companyID
 	u.Password = password
@@ -40,25 +38,26 @@ func CreateUser(u *models.User) (*models.User, error) {
 	return u.Save()
 }
 
-func AuthenticateUser(u *models.User) (*models.User, error) {
+func AuthenticateUser(u *models.User) (string, error) {
+
 	user, err := u.Find(&models.User{Email: u.Email})
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	if isValid := ComparePasswords(user.Password, []byte(u.Password)); isValid {
-		return user, nil
+	if err := comparePasswords(user.Password, []byte(u.Password)); err != nil {
+		return "", err
 	}
 
-	return nil, errors.New("passwordInvalid")
+	return CreateToken(user)
 }
 
 func CreateToken(u *models.User) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claimsExpiration := jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}
 
-	claims := &_claims{
+	c := claims{
 		FirstName:      u.FirstName,
 		LastName:       u.LastName,
 		Email:          u.Email,
@@ -66,10 +65,9 @@ func CreateToken(u *models.User) (string, error) {
 		StandardClaims: claimsExpiration,
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, *claims)
-	tokenString, err := token.SignedString(jwtKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
-	return tokenString, err
+	return token.SignedString(jwtKey)
 }
 
 func ValidateUser(u *models.User) error {
@@ -94,27 +92,4 @@ func ValidateUser(u *models.User) error {
 	}
 
 	return nil
-}
-
-func HashAndSalt(str string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(str), bcrypt.MinCost)
-
-	if err != nil {
-		return ""
-	}
-
-	return string(hash)
-}
-
-func ComparePasswords(hashedPwd string, plainPwd []byte) bool {
-	byteHash := []byte(hashedPwd)
-	err := bcrypt.CompareHashAndPassword(byteHash, plainPwd)
-
-	if err != nil {
-		log.Println(err)
-
-		return false
-	}
-
-	return true
 }
