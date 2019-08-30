@@ -8,10 +8,12 @@ import (
 	"github.com/deni1688/motusauth/models"
 )
 
+// CheckServiceController ...
 func CheckServiceController(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"status": "Service is running"})
 }
 
+// LoginController ...
 func LoginController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
@@ -30,6 +32,7 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"token": token})
 }
 
+// SignUpController ...
 func SignUpController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 

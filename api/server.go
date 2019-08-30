@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Init ...
 func Init() {
 	fmt.Println("Server listening on port 9000. Started at: " + time.Now().Format(time.RFC3339))
 	router := initRouter()

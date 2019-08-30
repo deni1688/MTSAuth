@@ -21,6 +21,7 @@ type claims struct {
 
 var jwtKey = []byte(os.Getenv("MOTUS_JWT_SECRET"))
 
+// CreateUser ...
 func CreateUser(u *models.User) (*models.User, error) {
 	if err := ValidateUser(u); err != nil {
 		return nil, err
@@ -38,6 +39,7 @@ func CreateUser(u *models.User) (*models.User, error) {
 	return u.Save()
 }
 
+// AuthenticateUser ...
 func AuthenticateUser(u *models.User) (string, error) {
 
 	user, err := u.Find(&models.User{Email: u.Email})
@@ -53,6 +55,7 @@ func AuthenticateUser(u *models.User) (string, error) {
 	return CreateToken(user)
 }
 
+// CreateToken ...
 func CreateToken(u *models.User) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claimsExpiration := jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}
@@ -70,7 +73,9 @@ func CreateToken(u *models.User) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
+// ValidateUser ...
 func ValidateUser(u *models.User) error {
+
 	if u.Email == "" {
 		return errors.New("Email is required")
 	}

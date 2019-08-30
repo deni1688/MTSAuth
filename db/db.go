@@ -9,6 +9,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+// Connect ...
 func Connect() *gorm.DB {
 	dbInfo := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -24,6 +25,7 @@ func Connect() *gorm.DB {
 	return conn
 }
 
+// Init ...
 func Init(tables []interface{}) {
 	conn := Connect()
 
