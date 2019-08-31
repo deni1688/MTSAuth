@@ -3,11 +3,11 @@ package app
 import "golang.org/x/crypto/bcrypt"
 
 func hashAndSalt(str string) string {
-	hash, err := bcrypt.GenerateFromPassword([]byte(str), bcrypt.MinCost)
-
-	if err != nil {
+	if str == "" {
 		return ""
 	}
+
+	hash, _ := bcrypt.GenerateFromPassword([]byte(str), bcrypt.MinCost)
 
 	return string(hash)
 }

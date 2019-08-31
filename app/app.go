@@ -81,7 +81,6 @@ func CreateToken(u *models.User) (string, error) {
 
 // ValidateUser ...
 func ValidateUser(u *models.User) error {
-
 	if u.Email == "" {
 		return errors.New("Email is required")
 	}
