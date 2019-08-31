@@ -14,6 +14,7 @@ type metadata struct {
 	DeletedAt *time.Time `json:"deletedAt,omitempty"`
 }
 
+// User model extended by metadate
 type User struct {
 	metadata
 	CompanyID string `json:"companyId,omitempty"`
@@ -25,6 +26,7 @@ type User struct {
 	Roles     string `json:"roles,omitempty"`
 }
 
+// Save creates user in the db and returns it
 func (u *User) Save() (*User, error) {
 	conn := db.Connect()
 
@@ -35,6 +37,7 @@ func (u *User) Save() (*User, error) {
 	return u, err
 }
 
+// Find can return a user based on a query or id
 func (u *User) Find(query interface{}) (*User, error) {
 	user := &User{}
 
@@ -53,16 +56,4 @@ func (u *User) Find(query interface{}) (*User, error) {
 	}
 
 	return user, nil
-}
-
-func (u *User) FindAll() (*User, error) {
-	return nil, errors.New("na")
-}
-
-func (u *User) Modify() (*User, error) {
-	return nil, errors.New("na")
-}
-
-func (u *User) Remove() (*User, error) {
-	return nil, errors.New("na")
 }

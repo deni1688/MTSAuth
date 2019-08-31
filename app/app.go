@@ -1,7 +1,10 @@
+// Package app is the main business logic layer
 package app
 
 import (
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -21,18 +24,17 @@ type claims struct {
 
 var jwtKey = []byte(os.Getenv("MOTUS_JWT_SECRET"))
 
-// CreateUser ...
-func CreateUser(u *models.User) (*models.User, error) {
+// RegisterUser ...
+func RegisterUser(u *models.User) (*models.User, error) {
 	if err := ValidateUser(u); err != nil {
 		return nil, err
 	}
 
-	companyID := hashAndSalt(u.Email)
-	password := hashAndSalt(u.Password)
+	companyID := fmt.Sprintf("%s:%s", u.Email, u.CreatedAt.Format("2006-01-02 15:04:05"))
 
-	u.CompanyID = companyID
-	u.Password = password
 	u.CreatedAt = time.Now()
+	u.CompanyID = hex.EncodeToString([]byte(companyID))
+	u.Password = hashAndSalt(u.Password)
 	u.Roles = "ProductManager,OrderManager,UserManager"
 	u.IsRoot = true
 
@@ -40,7 +42,10 @@ func CreateUser(u *models.User) (*models.User, error) {
 }
 
 // AuthenticateUser ...
-func AuthenticateUser(u *models.User) (string, error) {
+func AuthenticateUser(u models.User) (string, error) {
+	if u.Password == "" || u.Email == "" {
+		return "", errors.New("Email and Password are required")
+	}
 
 	user, err := u.Find(&models.User{Email: u.Email})
 
@@ -55,7 +60,8 @@ func AuthenticateUser(u *models.User) (string, error) {
 	return CreateToken(user)
 }
 
-// CreateToken ...
+// CreateToken returns a signed JWT token with the users
+// firstname, lastname, email, and roles
 func CreateToken(u *models.User) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claimsExpiration := jwt.StandardClaims{ExpiresAt: expirationTime.Unix()}

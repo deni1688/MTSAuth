@@ -27,7 +27,7 @@ func initRouter() *mux.Router {
 
 	router.HandleFunc("/", CheckServiceController).Methods("GET")
 	router.HandleFunc("/login", LoginController).Methods("POST")
-	router.HandleFunc("/signup", SignUpController).Methods("POST")
+	router.HandleFunc("/register", RegisterController).Methods("POST")
 
 	return router
 }

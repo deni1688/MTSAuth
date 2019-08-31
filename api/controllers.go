@@ -8,21 +8,22 @@ import (
 	"github.com/deni1688/motusauth/models"
 )
 
-// CheckServiceController ...
+// CheckServiceController check tha the api is running
 func CheckServiceController(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"status": "Service is running"})
 }
 
-// LoginController ...
+// LoginController authentictes user by email and password
+// and returns a signed jwt token
 func LoginController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil || u.Password == "" || u.Email == "" {
+	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid credentials format")
 		return
 	}
 
-	token, err := app.AuthenticateUser(&u)
+	token, err := app.AuthenticateUser(u)
 
 	if err != nil {
 		respondWithError(w, http.StatusForbidden, err.Error())
@@ -32,8 +33,8 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"token": token})
 }
 
-// SignUpController ...
-func SignUpController(w http.ResponseWriter, r *http.Request) {
+// RegisterController handles the creation of a new root user
+func RegisterController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
@@ -41,7 +42,7 @@ func SignUpController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.CreateUser(&u)
+	user, err := app.RegisterUser(&u)
 
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
