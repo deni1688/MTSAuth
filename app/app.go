@@ -4,7 +4,6 @@ package app
 import (
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -25,15 +24,13 @@ type claims struct {
 var jwtKey = []byte(os.Getenv("MOTUS_JWT_SECRET"))
 
 // RegisterUser ...
-func RegisterUser(u *models.User) (*models.User, error) {
+func RegisterUser(u *models.User) error {
 	if err := ValidateUser(u); err != nil {
-		return nil, err
+		return err
 	}
 
-	companyID := fmt.Sprintf("%s:%s", u.Email, u.CreatedAt.Format("2006-01-02 15:04:05"))
-
 	u.CreatedAt = time.Now()
-	u.CompanyID = hex.EncodeToString([]byte(companyID))
+	u.CompanyID = hex.EncodeToString([]byte(u.Email))
 	u.Password = hashAndSalt(u.Password)
 	u.Roles = "ProductManager,OrderManager,UserManager"
 	u.IsRoot = true

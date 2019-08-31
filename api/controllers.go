@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/deni1688/motusauth/app"
@@ -42,12 +43,10 @@ func RegisterController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.RegisterUser(&u)
-
-	if err != nil {
+	if err := app.RegisterUser(&u); err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusAccepted, user)
+	respondWithJSON(w, http.StatusAccepted, map[string]string{"message": fmt.Sprintf("User %s %s created", u.FirstName, u.LastName)})
 }

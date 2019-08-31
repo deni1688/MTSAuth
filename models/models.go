@@ -27,14 +27,12 @@ type User struct {
 }
 
 // Save creates user in the db and returns it
-func (u *User) Save() (*User, error) {
+func (u *User) Save() error {
 	conn := db.Connect()
 
 	defer conn.Close()
 
-	err := conn.Create(&u).Error
-
-	return u, err
+	return conn.Create(&u).Error
 }
 
 // Find can return a user based on a query or id
