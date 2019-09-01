@@ -9,4 +9,4 @@ echo "Shutting down running containers...";
 docker-compose down; 
 echo "Containers shut down!";
 echo "Rebuilding and bringing containers up!";
-docker-compose up --build -d
+docker-compose up --build -d    
