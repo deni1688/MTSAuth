@@ -4,7 +4,7 @@ services:
   postgres:
     image: "postgres:latest"
     container_name: "motus-test-db"
-    restart: always
+    reRun: always
     ports:
       - "5432:5432"
     environment:
@@ -17,7 +17,7 @@ services:
   authservice:
     build: ./
     container_name: "auth-api"
-    restart: always
+    reRun: always
     working_dir: /app
     links: 
       - postgres
