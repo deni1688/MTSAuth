@@ -9,14 +9,18 @@ import (
 	"github.com/deni1688/motusauth/models"
 )
 
+type Controller struct {
+	domain app.Domain
+}
+
 // CheckServiceController check tha the api is running
-func CheckServiceController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CheckServiceController(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusAccepted, map[string]string{"status": "Service is running"})
 }
 
 // LoginController authentictes user by email and password
 // and returns a signed jwt token
-func LoginController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) LoginController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
@@ -24,7 +28,7 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := app.AuthenticateUser(u)
+	token, err := c.domain.AuthenticateUser(u)
 
 	if err != nil {
 		respondWithError(w, http.StatusForbidden, err.Error())
@@ -35,7 +39,7 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterController handles the creation of a new root user
-func RegisterController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) RegisterController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
@@ -43,7 +47,7 @@ func RegisterController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := app.RegisterUser(&u); err != nil {
+	if err := c.domain.RegisterUser(&u); err != nil {
 		respondWithError(w, http.StatusBadRequest, err.Error())
 		return
 	}

@@ -21,10 +21,17 @@ type claims struct {
 	jwt.StandardClaims
 }
 
+type Domain interface {
+	RegisterUser(u *models.User) error
+	AuthenticateUser(u models.User) (string, error)
+}
+
+type App struct{}
+
 var jwtKey = []byte(os.Getenv("MOTUS_JWT_SECRET"))
 
 // RegisterUser ...
-func RegisterUser(u *models.User) error {
+func (a *App) RegisterUser(u *models.User) error {
 	if err := ValidateUser(u); err != nil {
 		return err
 	}
@@ -39,7 +46,7 @@ func RegisterUser(u *models.User) error {
 }
 
 // AuthenticateUser ...
-func AuthenticateUser(u models.User) (string, error) {
+func (a *App) AuthenticateUser(u models.User) (string, error) {
 	if u.Password == "" || u.Email == "" {
 		return "", errors.New("Email and Password are required")
 	}
