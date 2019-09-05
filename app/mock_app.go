@@ -12,14 +12,10 @@ type MockApp struct {
 }
 
 func (a *MockApp) AuthenticateUser(u models.User) (string, error) {
-	if u.Password == "" || u.Email == "" {
-		return "", errors.New("Email and Password are required")
-	}
-
 	testPassword := hashAndSalt("testing123")
 
 	if err := comparePasswords(testPassword, []byte(u.Password)); err != nil {
-		return "", err
+		return "", errors.New("Access Denied")
 	}
 
 	return "mockToken123", nil
@@ -27,5 +23,5 @@ func (a *MockApp) AuthenticateUser(u models.User) (string, error) {
 
 // RegisterUser ...
 func (a *MockApp) RegisterUser(u *models.User) error {
-	return ValidateUser(u)
+	return validateUser(u)
 }

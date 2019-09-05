@@ -1,6 +1,11 @@
 package app
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"errors"
+
+	"github.com/deni1688/motusauth/models"
+	"golang.org/x/crypto/bcrypt"
+)
 
 func hashAndSalt(str string) string {
 	if str == "" {
@@ -16,4 +21,29 @@ func comparePasswords(hashedPwd string, plainPwd []byte) error {
 	byteHash := []byte(hashedPwd)
 
 	return bcrypt.CompareHashAndPassword(byteHash, plainPwd)
+}
+
+// ValidateUser ...
+func validateUser(u *models.User) error {
+	if u.Email == "" {
+		return errors.New("Email is required")
+	}
+
+	if u.Password == "" {
+		return errors.New("Password is required")
+	}
+
+	if len(u.Password) < 8 {
+		return errors.New("Password to short")
+	}
+
+	if u.FirstName == "" {
+		return errors.New("Firstname is required")
+	}
+
+	if u.LastName == "" {
+		return errors.New("Lastname is required")
+	}
+
+	return nil
 }

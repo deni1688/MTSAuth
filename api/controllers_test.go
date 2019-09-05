@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/deni1688/motusauth/app"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -15,55 +16,55 @@ var (
 	c      = &Controller{domain}
 )
 
-func TestCheckServiceController(t *testing.T) {
-	req, err := http.NewRequest("GET", "localhost:9000", nil)
+func testRequest(t *testing.T, method string, url string, data string, c func(http.ResponseWriter, *http.Request)) *httptest.ResponseRecorder {
+	req, err := http.NewRequest(method, url, bytes.NewBufferString(data))
 
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected while creating request", err)
 	}
+
 	w := httptest.NewRecorder()
 
-	controller := http.HandlerFunc(c.CheckServiceController)
-
+	controller := http.HandlerFunc(c)
 	controller.ServeHTTP(w, req)
 
-	if w.Code != http.StatusAccepted {
-		t.Fatalf("expected status code to be 200, but got: %d", w.Code)
-	}
-
-	expected := map[string]string{"status": "Service is running"}
-	expectedBytes, _ := json.Marshal(expected)
-
-	if w.Body.String() != string(expectedBytes) {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			w.Body.String(), expected)
-	}
+	return w
 }
 
-func TestLoginController(t *testing.T) {
+func TestCheckServiceController(t *testing.T) {
+	expected, _ := json.Marshal(map[string]string{"status": "Service is running"})
+	w := testRequest(t, "GET", "localhost:9000", "", c.CheckServiceController)
+
+	assert.Equal(t, http.StatusAccepted, w.Code, "should equal 200")
+	assert.Equal(t, string(expected), w.Body.String(), "should return Service is running")
+}
+
+func TestLoginControllerSuccess(t *testing.T) {
 	data := `{"email": "t@testing.com", "password": "testing123"}`
+	expected, _ := json.Marshal(map[string]string{"token": "mockToken123"})
 
-	req, err := http.NewRequest("POST", "localhost:9000/login", bytes.NewBufferString(data))
+	w := testRequest(t, "POST", "localhost:9000/login", data, c.LoginController)
 
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected while creating request", err)
-	}
+	assert.Equal(t, http.StatusAccepted, w.Code, "should equal 200")
+	assert.Equal(t, string(expected), w.Body.String(), "should return the token")
+}
 
-	w := httptest.NewRecorder()
+func TestLoginControllerValidationFails(t *testing.T) {
+	data := `{"email": "", "password": ""}`
+	expected, _ := json.Marshal(map[string]string{"error": "Invalid credentials format"})
 
-	controller := http.HandlerFunc(c.LoginController)
+	w := testRequest(t, "POST", "localhost:9000/login", data, c.LoginController)
 
-	controller.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "should equal 400")
+	assert.Equal(t, string(expected), w.Body.String(), "should return error for invalid email and password")
+}
 
-	if w.Code != http.StatusAccepted {
-		t.Fatalf("expected status code to be 200, but got: %d", w.Code)
-	}
+func TestLoginControllerAuthFails(t *testing.T) {
+	data := `{"email": "t@testing.com", "password": "wrongpass123"}`
+	expected, _ := json.Marshal(map[string]string{"error": "Access Denied"})
 
-	expected := map[string]string{"token": "mockToken123"}
-	expectedBytes, _ := json.Marshal(expected)
+	w := testRequest(t, "POST", "localhost:9000/login", data, c.LoginController)
 
-	if w.Body.String() != string(expectedBytes) {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			w.Body.String(), string(expectedBytes))
-	}
+	assert.Equal(t, http.StatusForbidden, w.Code, "should equal 403")
+	assert.Equal(t, string(expected), w.Body.String(), "should return error for unauthenticated user")
 }

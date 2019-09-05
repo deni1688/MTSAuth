@@ -32,7 +32,7 @@ var jwtKey = []byte(os.Getenv("MOTUS_JWT_SECRET"))
 
 // RegisterUser ...
 func (a *App) RegisterUser(u *models.User) error {
-	if err := ValidateUser(u); err != nil {
+	if err := validateUser(u); err != nil {
 		return err
 	}
 
@@ -47,10 +47,6 @@ func (a *App) RegisterUser(u *models.User) error {
 
 // AuthenticateUser ...
 func (a *App) AuthenticateUser(u models.User) (string, error) {
-	if u.Password == "" || u.Email == "" {
-		return "", errors.New("Email and Password are required")
-	}
-
 	user, err := u.Find(&models.User{Email: u.Email})
 
 	if err != nil {
@@ -58,7 +54,7 @@ func (a *App) AuthenticateUser(u models.User) (string, error) {
 	}
 
 	if err := comparePasswords(user.Password, []byte(u.Password)); err != nil {
-		return "", err
+		return "", errors.New("Access Denied")
 	}
 
 	return CreateToken(user)
@@ -81,29 +77,4 @@ func CreateToken(u *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
 	return token.SignedString(jwtKey)
-}
-
-// ValidateUser ...
-func ValidateUser(u *models.User) error {
-	if u.Email == "" {
-		return errors.New("Email is required")
-	}
-
-	if u.Password == "" {
-		return errors.New("Password is required")
-	}
-
-	if len(u.Password) < 8 {
-		return errors.New("Password to short")
-	}
-
-	if u.FirstName == "" {
-		return errors.New("Firstname is required")
-	}
-
-	if u.LastName == "" {
-		return errors.New("Lastname is required")
-	}
-
-	return nil
 }

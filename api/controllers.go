@@ -23,7 +23,9 @@ func (c *Controller) CheckServiceController(w http.ResponseWriter, r *http.Reque
 func (c *Controller) LoginController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+	err := json.NewDecoder(r.Body).Decode(&u)
+
+	if err != nil || u.Email == "" || u.Password == "" {
 		respondWithError(w, http.StatusBadRequest, "Invalid credentials format")
 		return
 	}
