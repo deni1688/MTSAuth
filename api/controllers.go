@@ -24,7 +24,7 @@ func (c *Controller) LoginController(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-		respondWithError(w, http.StatusBadRequest, err.Error())
+		respondWithError(w, http.StatusBadRequest, "Invalid credentials format")
 		return
 	}
 
