@@ -34,7 +34,7 @@ func validateUser(u *models.User) error {
 	}
 
 	if len(u.Password) < 8 {
-		return errors.New("Password to short")
+		return errors.New("Password min 8 letters")
 	}
 
 	if u.FirstName == "" {
