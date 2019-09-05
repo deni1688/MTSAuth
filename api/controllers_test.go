@@ -75,5 +75,25 @@ func Test_RegisterController_Success(t *testing.T) {
 	w := testRequest(t, "POST", "localhost:9000/register", data, c.RegisterController)
 
 	assert.Equal(t, http.StatusAccepted, w.Code, "should equal 200")
-	assert.Equal(t, expected, w.Body.String(), "should return error for unauthenticated user")
+	assert.Equal(t, expected, w.Body.String(), "should register a new user")
+}
+
+func Test_RegisterController_DecodeFails(t *testing.T) {
+	data := ""
+	expected := `{"error":"Invalid user format"}`
+
+	w := testRequest(t, "POST", "localhost:9000/register", data, c.RegisterController)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "should equal 400")
+	assert.Equal(t, expected, w.Body.String(), "should return error for bad json")
+}
+
+func Test_RegisterController_RegisterFails(t *testing.T) {
+	data := `{"email": "t@testing.com", "password": "1234567", "firstname": "Mike", "lastname": "Jones"}`
+	expected := `{"error":"Password min 8 letters"}`
+
+	w := testRequest(t, "POST", "localhost:9000/register", data, c.RegisterController)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code, "should equal 400")
+	assert.Equal(t, expected, w.Body.String(), "should return error for invalid user")
 }
