@@ -1,3 +1,4 @@
 motusauth
 motusauth*
 .env
+coverage*
