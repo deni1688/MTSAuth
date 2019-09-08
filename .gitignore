@@ -2,3 +2,4 @@ motusauth
 motusauth*
 .env
 coverage*
+vendor/
